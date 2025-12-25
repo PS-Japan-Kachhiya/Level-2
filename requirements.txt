@@ -1,0 +1,5 @@
+streamlit
+python-mcp
+mistralai
+httpx
+python-dotenv
