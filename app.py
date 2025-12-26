@@ -8,11 +8,11 @@ from dotenv import load_dotenv
 import os
 load_dotenv()
 MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
-MODEL = "mistral-large-latest"
+MODEL = "mistral-small-2506"
 mistral_client = Mistral(api_key=MISTRAL_API_KEY)
 
-st.set_page_config(page_title="Weekend AI Agent", )
-st.title("🤖 Weekend Planner")
+st.set_page_config(page_title="AI Agent", )
+st.title("🤖 AI Agent")
 
 if "mcp_session" not in st.session_state:
     st.session_state.messages = []

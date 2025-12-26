@@ -10,7 +10,7 @@ async def get_weather(lat: float, lon: float):
     async with httpx.AsyncClient() as client:
         resp = await client.get(url)
         data = resp.json().get("current_weather", {})
-        return f"Temperature: {data.get('temperature')}°C, Windspeed: {data.get('windspeed')}km/h"
+        return f"Temperature: {data.get('temperature')}°C"
 
 @mcp.tool()
 async def get_mystery_books(count: int = 2):
@@ -43,6 +43,34 @@ async def get_trivia():
         resp = await client.get("https://opentdb.com/api.php?amount=1&category=10&type=multiple")
         data = resp.json()["results"][0]
         return f"Question: {data['question']} | Correct Answer: {data['correct_answer']}"
+    
+@mcp.tool()
+async def get_weather_by_city(city_name: str):
+    """Get current weather for a specific city name (e.g., 'London' or 'New York')."""
+    
+    # 1. Geocoding: Convert City Name to Lat/Lon
+    geo_url = f"https://geocoding-api.open-meteo.com/v1/search?name={city_name}&count=1&language=en&format=json"
+    
+    async with httpx.AsyncClient() as client:
+        geo_resp = await client.get(geo_url)
+        geo_data = geo_resp.json()
+        
+        if not geo_data.get("results"):
+            return f"Error: Could not find a city named '{city_name}'."
+        
+        # Extract location details
+        location = geo_data["results"][0]
+        lat = location["latitude"]
+        lon = location["longitude"]
+        full_name = f"{location['name']}, {location.get('admin1', '')}, {location.get('country', '')}"
+
+        # 2. Get Weather using the coordinates found
+        weather_url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true"
+        weather_resp = await client.get(weather_url)
+        w_data = weather_resp.json().get("current_weather", {})
+        
+        temp = w_data.get("temperature")
+        return f"Weather for {full_name}: {temp}°C (Lat: {lat}, Lon: {lon})"
 
 if __name__ == "__main__":
     mcp.run(transport="stdio")
