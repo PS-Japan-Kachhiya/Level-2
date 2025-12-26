@@ -1,6 +1,6 @@
-# Weekend AI Agent
+#AI Agent
 
-This project is a simple AI-powered weekend planner that uses the Mistral AI API and a Streamlit user interface. The agent can provide weather forecasts, book recommendations, jokes, dog photos, and trivia to help you plan your weekend.
+This project is a simple AI-powered assistant that uses the Mistral AI API and a Streamlit user interface. The agent can provide weather forecasts, book recommendations, jokes, dog photos, and trivia to help you plan.
 
 ## Project Structure
 
