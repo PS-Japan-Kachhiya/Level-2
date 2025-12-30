@@ -13,8 +13,8 @@ async def get_weather(lat: float, lon: float):
         return f"Temperature: {data.get('temperature')}°C"
 
 @mcp.tool()
-async def get_mystery_books(count: int = 2):
-    """Fetch mystery book recommendations from Open Library."""
+async def get_books(count: int = 2):
+    """Fetch  book recommendations from Open Library."""
     url = "https://openlibrary.org/search.json"
     async with httpx.AsyncClient() as client:
         resp = await client.get(url)
@@ -30,11 +30,11 @@ async def get_joke():
         return resp.json().get("joke", "Why did the AI cross the road? To reach the other data center.")
 
 @mcp.tool()
-async def get_dog_photo():
-    """Get a random dog image URL."""
+async def get_photo():
+    """Get a random  image URL."""
     async with httpx.AsyncClient() as client:
         resp = await client.get("https://dog.ceo/api/breeds/image/random")
-        return resp.json().get("message", "No dogs found.")
+        return resp.json().get("message", "No image found.")
 
 @mcp.tool()
 async def get_trivia():
@@ -44,30 +44,34 @@ async def get_trivia():
         data = resp.json()["results"][0]
         return f"Question: {data['question']} | Correct Answer: {data['correct_answer']}"
     
+
 @mcp.tool()
-async def get_weather_by_city(city_name: str):
-    """Get current weather for a specific city name (e.g., 'London' or 'New York')."""
-    
-    geo_url = f"https://geocoding-api.open-meteo.com/v1/search?name={city_name}&count=1&language=en&format=json"
-    
+async def resolve_city_to_latlon(city_name: str):
+    """
+    Convert city name to latitude/longitude
+    and fetch weather using get_weather tool.
+    """
+
+    geo_url = (
+        "https://geocoding-api.open-meteo.com/v1/search"
+        f"?name={city_name}&count=1&language=en&format=json"
+    )
+
     async with httpx.AsyncClient() as client:
         geo_resp = await client.get(geo_url)
         geo_data = geo_resp.json()
-        
-        if not geo_data.get("results"):
-            return f"Error: Could not find a city named '{city_name}'."
-        
-        location = geo_data["results"][0]
-        lat = location["latitude"]
-        lon = location["longitude"]
-        full_name = f"{location['name']}, {location.get('admin1', '')}, {location.get('country', '')}"
 
-        weather_url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true"
-        weather_resp = await client.get(weather_url)
-        w_data = weather_resp.json().get("current_weather", {})
-        
-        temp = w_data.get("temperature")
-        return f"Weather for {full_name}: {temp}°C (Lat: {lat}, Lon: {lon})"
+    if not geo_data.get("results"):
+        return f"❌ Could not find a city named '{city_name}'."
+
+    location = geo_data["results"][0]
+    lat = location["latitude"]
+    lon = location["longitude"]
+
+    weather = await get_weather(lat, lon)
+
+    full_name = f"{location['name']}, {location.get('country', '')}"
+    return f"🌍 Weather for {full_name}: {weather}"
 
 if __name__ == "__main__":
     mcp.run(transport="stdio")
